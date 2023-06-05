@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Redirect to Naver App</title>
+    </head>
+    <body>
+        <h1>Welcome to Daerisoft</h1>
+        <p>Click the button below to install or run the game.</p>
+        <button onclick="redirectToGame()">Install or run the game</button>
+
+        <p>
+            android chrome에서 intent만 적용한 방식은 Redirect가 안된다. (아래
+            링크 참조)
+        </p>
+        <p>
+            그래서 위와 같이 유저의 제스처를 강요해야한다. (버튼 클릭 또는 url
+            클릭)
+        </p>
+        <p>
+            url 기반으로 Redirect가 되게 할려면 Applink를 적용하면 된다는 이야기
+            인듯?
+        </p>
+        <a href="https://developer.chrome.com/docs/multidevice/android/intents/"
+            >참조 링크</a
+        >
+        <p>
+            삼성브라우저, 파이어폭스 등등 다른 브라우저도 확인 해보긴 해야할듯?
+        </p>
+
+        <script>
+            // 레퍼럴 코드 추출 함수
+            function getReferralCode() {
+                var urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('referrerCode');
+            }
+
+            // iOS에서 Deferred Deep Link를 처리하는 함수
+            function handleIOSDeepLink(referralCode) {
+                // iOS 딥링크 처리 로직 구현
+                // ...
+
+                // 앱으로 리디렉트
+                window.location.href =
+                    'https://itunes.apple.com/app/id393499958';
+            }
+
+            // Android에서 Deferred Deep Link를 처리하는 함수
+            function handleAndroidDeepLink(referralCode) {
+                // Android 딥링크 처리 로직 구현
+                // ...
+
+                // 앱으로 리디렉트
+                // window.location.href = `intent://#Intent;scheme=naversearchapp;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.nhn.android.search;S.ref=${referralCode};end`;
+                // window.location.href = `intent://#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.daeri.ReferrerSample;S.referrerCode=${referralCode};end`;
+                window.location.href = `intent://192.168.0.67/#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.daeri.ReferrerSample;S.referrerCode=${referralCode};end`;
+            }
+
+            // PC 메시지 보여주는 함수
+            function showPCMessage() {
+                var pcMessage = document.createElement('div');
+                pcMessage.textContent =
+                    'PC에서 접속하는 경우는 어떻게 하면 될까요? (일단 아무것도 안함)';
+                pcMessage.style.color = 'red';
+                pcMessage.style.fontWeight = 'bold';
+                pcMessage.style.textAlign = 'center';
+
+                document.body.appendChild(pcMessage);
+            }
+
+            // 웹페이지 로딩 시 기기별로 Deferred Deep Link 처리 함수 호출
+            window.onload = function () {
+                redirectToGame();
+            };
+
+            function redirectToGame() {
+                var referralCode = getReferralCode();
+
+                if (referralCode) {
+                    // 레퍼럴 코드를 사용하여 필요한 작업 수행
+                    console.log('Referral code:', referralCode);
+                }
+
+                var userAgent =
+                    navigator.userAgent || navigator.vendor || window.opera;
+
+                // iOS인 경우
+                if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                    handleIOSDeepLink(referralCode);
+                }
+
+                // Android인 경우
+                if (/android/i.test(userAgent)) {
+                    // 앱으로 리디렉트
+                    handleAndroidDeepLink(referralCode);
+                }
+
+                // PC인 경우
+                if (!/iPad|iPhone|iPod|android/i.test(userAgent)) {
+                    showPCMessage();
+                }
+            }
+        </script>
+    </body>
+</html>
